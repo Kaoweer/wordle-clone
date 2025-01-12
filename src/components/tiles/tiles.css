@@ -1,0 +1,22 @@
+.empty-tile{
+  height: 100px;
+  width: 100px;
+  border: black 1px solid;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+}
+.empty-tile h1{
+  height: fit-content;
+  
+}
+.tiles-row{
+  display: flex;
+  flex-direction: row;
+  padding: 0.5rem;
+}
+.correct{
+  background-color: green;
+}
