@@ -2,24 +2,12 @@ import React, { useCallback, useEffect, useState } from "react";
 import "./tiles.css";
 
 type EmptyTileProps = {
-  letter: string;
-  correctLetter: string;
-};
-type TileState = 'correct' | 'almost' | 'idle';
+  letter:string
+}
 
-export default function EmptyTile({ letter,correctLetter }: EmptyTileProps) {
-  const [tileState, setTileState] = useState<TileState>('idle');
-
-  const isCorrectLetter = useCallback(() => {
-    setTileState(letter === correctLetter ? 'correct' : 'idle');
-  }, [letter, correctLetter]);
-
-  useEffect(() => {
-    isCorrectLetter();
-  }, [isCorrectLetter]);
-  
+export default function EmptyTile({letter}:EmptyTileProps) {
   return (
-    <div className={`empty-tile ${tileState}`} >
+    <div className={`empty-tile`}>
       <h1>{letter}</h1>
     </div>
   );
