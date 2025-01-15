@@ -1,10 +1,16 @@
 import React, { useState, useRef, useEffect } from "react";
 import EmptyTile from "../tiles/EmptyTile";
 import TilesRows from "../tiles/tilesRow/TilesRows";
+import fetchWordFromAPI from "../../APIs/wordAPI";
+import triesDict from "../../storage/wordTries";
+
+interface WordProperties {
+  [key: string]: number;
+}
 
 export default function GameContainer() {
   const [word, setWord] = useState<string>("");
-  const [wordArr, setWordArr] = useState<string[]>(["", "", "", "", ""]);
+  const [wordArr, setWordArr] = useState<string[]>(["", "", "", "", "", ""]);
   const [curRow, setCurRow] = useState<number>(0);
   const [correctWord, setCorrectWord] = useState<string>("");
   const [wordProperties, setWordProperties] = useState({});
@@ -22,18 +28,14 @@ export default function GameContainer() {
   useEffect(() => {
     const fetchWord = async () => {
       setIsLoading(true);
-      const response = await fetch(
-        "https://random-word-api.herokuapp.com/word?length=5&number=1"
-      );
-      const data = await response.json();
-      const correctWord = data[0];
+      const correctWord = await fetchWordFromAPI();
       setCorrectWord(correctWord);
 
       for (const letter of correctWord.split("")) {
-        setWordProperties((prev: any) => {
+        setWordProperties((prev: WordProperties) => {
           return { ...prev, [letter]: (prev[letter] || 0) + 1 };
         });
-        setLetterCount((prev: any) => {
+        setLetterCount((prev: WordProperties) => {
           return { ...prev, [letter]: (prev[letter] || 0) + 1 };
         });
       }
@@ -63,14 +65,27 @@ export default function GameContainer() {
   };
 
   const hdlNext = () => {
-    if (curRow < 5 && word.length === 5) {
+    if (word.toLowerCase() === correctWord.toLowerCase()) {
+      alert("Congratulations! You won!");
+      return;
+    }
+    if (word.length === 5) {
+      if (!triesDict.search(word.toLowerCase())) {
+        return alert("Not a valid word");
+      }
+      if (curRow >= wordArr.length - 1) {
+        setCurRow(curRow + 1);
+        alert("Game Over! The word was: " + correctWord);
+        return;
+      }
       setCurRow(curRow + 1);
       setWord("");
       if (inputRef.current) {
         inputRef.current.value = "";
       }
     }
-  };
+};
+
 
   return (
     <div onKeyDown={hdlKeyDown} tabIndex={0} className="tiles-container">
@@ -78,7 +93,7 @@ export default function GameContainer() {
         <div>Loading word...</div>
       ) : (
         <>
-          correct : {correctWord}, properties : {JSON.stringify(wordProperties)}
+          {/* correct : {correctWord}, properties : {JSON.stringify(wordProperties)} */}
           <input
             ref={inputRef}
             onChange={(e) => hdlChange(e)}
@@ -88,13 +103,12 @@ export default function GameContainer() {
           />
           {[...Array(6)].map((_, i) => (
             <TilesRows
+              key={i}
               curRow={curRow}
               correctWord={correctWord}
               word={word}
               wordArr={wordArr}
-              key={i}
               rowId={i}
-              letterCount={letterCount}
             />
           ))}
         </>

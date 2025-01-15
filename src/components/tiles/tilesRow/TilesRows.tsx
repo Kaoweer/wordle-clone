@@ -21,9 +21,8 @@ export default function TilesRows({
   word,
 }: TilesRowsProps) {
   const [wordStatus, setWordStatus] = useState<TileState[]>([]);
-
   useEffect(() => {
-    if (rowId === curRow - 1) {
+    if (rowId === curRow) {
       const letterCount = correctWord.split("").reduce<Record<string, number>>((acc, cur) => {
         acc[cur] = (acc[cur] || 0) + 1;
         return acc;
@@ -53,7 +52,6 @@ export default function TilesRows({
     <div className="tiles-row">
       {[...Array(5)].map((_, i) => {
         const currentLetter = wordArr[rowId] ? wordArr[rowId][i] : "";
-
         if (rowId >= curRow) {
           return <EmptyTile key={i} letter={currentLetter} />;
         }
