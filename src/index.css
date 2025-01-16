@@ -1,7 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&display=swap');
+
 *{
   box-sizing: border-box;
   padding: 0;
   margin: 0;
+  font-family: "Lexend", serif;
 }
 .hidden{
   position: absolute;
@@ -9,4 +12,8 @@
   width: 0;
   height: 0;
   pointer-events: none;
+}
+.game-title {
+  font-size: 3rem;
+  text-align: center;
 }

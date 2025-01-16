@@ -1,7 +1,7 @@
 import React from "react";
 
 type CheckedTileProps = {
-  letter: string;
+  letter: string | null;
   tileState: "correct" | "almost" | "idle";
 };
 
@@ -11,7 +11,7 @@ export default function CheckedTile({
 }: CheckedTileProps) {
   return (
     <div className={`empty-tile ${tileState}`}>
-      <h1>{letter}</h1>
+      <h1>{letter?.toUpperCase()}</h1>
     </div>
   );
 }

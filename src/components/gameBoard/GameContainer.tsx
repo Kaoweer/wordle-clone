@@ -3,6 +3,8 @@ import EmptyTile from "../tiles/EmptyTile";
 import TilesRows from "../tiles/tilesRow/TilesRows";
 import fetchWordFromAPI from "../../APIs/wordAPI";
 import triesDict from "../../storage/wordTries";
+import "./GameContainer.css";
+import CharacterList from "./CharacterList";
 
 interface WordProperties {
   [key: string]: number;
@@ -16,12 +18,14 @@ export default function GameContainer() {
   const [wordProperties, setWordProperties] = useState({});
   const [letterCount, setLetterCount] = useState({});
   const [isLoading, setIsLoading] = useState(true);
+  const [isInvalid, setIsInvalid] = useState(false);
+  const [letterSet, setLetterSet] = useState(new Set());
   const inputRef = useRef<HTMLInputElement>(null);
 
   const hdlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setWord(e.target.value);
     const newArr = [...wordArr];
-    newArr[curRow] = e.target.value;
+    newArr[curRow] = e.target.value.toLowerCase();
     setWordArr(newArr);
   };
 
@@ -52,9 +56,11 @@ export default function GameContainer() {
       )
     ) {
       e.preventDefault();
-      setLetterCount((prev: any) => {
-        prev[e.key] -= 1;
-      });
+      // Fix: Use proper state update pattern
+      setLetterCount((prev: { [key: string]: number }) => ({
+        ...prev,
+        [e.key]: (prev[e.key] || 0) - 1,
+      }));
     }
     if (inputRef.current && e.key) {
       inputRef.current.focus();
@@ -64,6 +70,15 @@ export default function GameContainer() {
     }
   };
 
+  useEffect(() => {
+    if (isInvalid) {
+      const timer = setTimeout(() => {
+        setIsInvalid(false);
+      }, 500); // Match animation duration
+      return () => clearTimeout(timer);
+    }
+  }, [isInvalid]);
+
   const hdlNext = () => {
     if (word.toLowerCase() === correctWord.toLowerCase()) {
       alert("Congratulations! You won!");
@@ -71,21 +86,21 @@ export default function GameContainer() {
     }
     if (word.length === 5) {
       if (!triesDict.search(word.toLowerCase())) {
-        return alert("Not a valid word");
+        return setIsInvalid(true);
       }
       if (curRow >= wordArr.length - 1) {
         setCurRow(curRow + 1);
         alert("Game Over! The word was: " + correctWord);
         return;
       }
+      setLetterSet((prevSet) => new Set([...prevSet, ...word.split("")]));
       setCurRow(curRow + 1);
       setWord("");
       if (inputRef.current) {
         inputRef.current.value = "";
       }
     }
-};
-
+  };
 
   return (
     <div onKeyDown={hdlKeyDown} tabIndex={0} className="tiles-container">
@@ -109,8 +124,10 @@ export default function GameContainer() {
               word={word}
               wordArr={wordArr}
               rowId={i}
+              isInvalid={isInvalid}
             />
           ))}
+          <CharacterList letterSet={letterSet} />
         </>
       )}
     </div>
